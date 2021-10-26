@@ -17,8 +17,10 @@ def load_model(nome_arquivo):
 def calcula_retorno(valor_imovel, valor_aluguel):
     return  f'{valor_aluguel/valor_imovel * 100} %' 
 
-
-st.title("Dashboard Análise Dimas Construções")
+#def calculo_rentabilidade(preco_aluguel, valor_venda):
+ #   valor_aluguel = preco_aluguel
+  #  venda = valor_venda
+   # return (valor_aluguel/venda * 12)
 
 botao_checkbox = st.sidebar.checkbox('Modelo Alugueis Zap')
 botao_checkbox_tentativa_Extra_Trees = st.sidebar.checkbox('Modelo Planilha Bloco')
@@ -44,7 +46,7 @@ if botao_checkbox_tentativa_Extra_Trees:
             dicionario[f'{item}_{valor}'] = 0
         # Definindo parametros numericos
     for item in x_numericos:
-        valor = st.sidebar.number_input(f'{item}', step=1.0, value=0.0, format = '%.1f')
+        valor = st.sidebar.number_input(f'{item}', step=1.0, value=1.0, format = '%.1f')
         x_numericos[item] = valor
 
     #Definindo parâmetros categóricos
@@ -63,12 +65,14 @@ if botao_checkbox_tentativa_Extra_Trees:
             if preco[0] < 0:
                 valor = -1 * preco[0]
                 st.success(f"O valor a ser cobrado é de R$ {valor:.2f}")
-                st.button('Reiniciar Parâmetros')
             else:    
                 st.success(f"O valor a ser cobrado é de R$ {preco[0]:.2f}")
-                st.button('Reiniciar Parâmetros')
-        #st.success(calcula_retorno(valores_x[''], valores_x['']))
-
+           # preco_venda= st.number_input("Valor do imóvel", step=1000.0, value=1.0,format = '%.1f')
+           # botao_calcular= st.button("Calcular rentabilidade")
+           # if botao_calcular:
+            #    rentabilidade = calculo_rentabilidade(float(preco[0]), preco_venda)
+             #   st.success(f'A rentabilidade anual por meio do aluguel é de {rentabilidade:.0%}')
+            st.button("Reiniciar Parâmetros")
 if botao_checkbox:
     st.markdown(""" ### Projeto de Previsão de Aluguel em Florianópolis- Dados do Zap Imóveis
         """)
@@ -92,58 +96,66 @@ if botao_checkbox:
             if preco[0] < 0:
                 valor = -1 * preco[0]
                 st.success(f"O valor a ser cobrado é de R$ {valor:.2f}")
-                st.button('Reiniciar Parâmetros')
+                
             else:    
                 st.success(f"O valor a ser cobrado é de R$ {preco[0]:.2f}")
-                st.button('Reiniciar Parâmetros')
 
-@st.cache
-def dados_csv():
-    df = pd.read_csv("Dados Bloco Convertido.csv")
-    return df
+           # preco_venda= st.number_input("Valor do imóvel", step=1000.0, value=1.0,format = '%.1f')
+          #  botao_calcular=st.button("Calcular rentabilidade")
+           # if botao_calcular:
+            #    rentabilidade = calculo_rentabilidade(float(preco[0]), preco_venda)
+             #   st.success(f'A rentabilidade anual por meio do aluguel é de {rentabilidade:.0%}')
+            st.button("Reiniciar Parâmetros")
+if botao_checkbox ==False and botao_checkbox_tentativa_Extra_Trees == False:
+    st.title("Dashboard Análise Dimas Construções")
 
-df = dados_csv()
+    @st.cache
+    def dados_csv():
+        df = pd.read_csv("Dados Bloco Convertido.csv")
+        return df
 
-
-
-#------MultiSelect-------
-
-st.header("Selecione um filtro")
-bairro = st.multiselect( 
-    "Selecione o Bairro",
-    options=df["Bairro"].unique(),
-    default=df["Bairro"].unique(),
-)
-
-df_selecao = df.query("Bairro == @bairro")
-
-grafico_alugueis_por_classe = (df_selecao[['Classificação Bairro', 'Aluguel.1']])
-grafico_alugueis_por_bairro = df_selecao[['Aluguel.1', 'Bairro']].groupby('Bairro').sum().sort_values(by='Aluguel.1', ascending=False)
-histograma = df_selecao[['Bairro', 'Aluguel.1', 'Classificação Bairro']]
-fig1 = px.histogram(
-    grafico_alugueis_por_classe,
-    x = 'Aluguel.1',
-    y= 'Classificação Bairro',
-    orientation= 'h',
-    title= 'Gráfico Valor de aluguel por tipo de Bairro'
-)
+    df = dados_csv()
 
 
-fig2 = px.histogram(
-    histograma,
-    x = 'Bairro',
-    y = 'Aluguel.1',
-    title= 'Gráfico Valor de Aluguel por Bairro'
-)
 
-left_column, right_column = st.columns(2)
-left_column.plotly_chart(fig1, use_container_width=True)
+    #------MultiSelect-------
 
-right_column.plotly_chart(fig2, use_container_width=True)
+    st.header("Selecione um filtro")
+    bairro = st.multiselect( 
+        "Selecione o Bairro",
+        options=df["Bairro"].unique(),
+        default=df["Bairro"].unique(),
+    )
+
+    df_selecao = df.query("Bairro == @bairro")
+
+    grafico_alugueis_por_classe = (df_selecao[['Classificação Bairro', 'Aluguel.1']])
+    grafico_alugueis_por_bairro = df_selecao[['Aluguel.1', 'Bairro']].groupby('Bairro').sum().sort_values(by='Aluguel.1', ascending=False)
+    histograma = df_selecao[['Bairro', 'Aluguel.1', 'Classificação Bairro']]
+    fig1 = px.histogram(
+        grafico_alugueis_por_classe,
+        x = 'Aluguel.1',
+        y= 'Classificação Bairro',
+        orientation= 'h',
+        title= 'Gráfico Valor de aluguel por tipo de Bairro'
+    )
 
 
-botao_dataset = st.checkbox("Mostrar Tabela")
+    fig2 = px.histogram(
+        histograma,
+        x = 'Bairro',
+        y = 'Aluguel.1',
+        title= 'Gráfico Valor de Aluguel por Bairro'
+    )
 
-if botao_dataset:
-    st.dataframe(df_selecao)
+    left_column, right_column = st.columns(2)
+    left_column.plotly_chart(fig1, use_container_width=True)
+
+    right_column.plotly_chart(fig2, use_container_width=True)
+
+
+    botao_dataset = st.checkbox("Mostrar Tabela")
+
+    if botao_dataset:
+        st.dataframe(df_selecao)
 
