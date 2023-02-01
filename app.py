@@ -1,7 +1,5 @@
 import pandas as pd
 import streamlit as st
-from sklearn.ensemble import ExtraTreesRegressor
-from sklearn.model_selection import train_test_split
 import joblib
 import plotly.express as px
 
